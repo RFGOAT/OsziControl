@@ -17,12 +17,11 @@ from tkinter import filedialog
 
 def Screenshot(saveDir):
      
-    MSOX4024A.write(":STOP")
-    # configure ink saver (black background as seen on screen)
-    MSOX4024A.write(':HARDcopy:INKSaver 0')
-    # get screen data
-    data = MSOX4024A.query_binary_values(':DISPlay:DATA? PNG, COLOR', datatype='B')
-    MSOX4024A.write(":RUN")
+    Trigger = str(MyOszi.query("TRMD?"))
+    MyOszi.write("TRMD STOP")
+    MyOszi.write("SCDP") # Send Screendump Command
+    data = MyOszi.read_raw() # get screen data
+    MyOszi.write(Trigger)
 
     
     # write it to file counter screenshot index
@@ -30,7 +29,7 @@ def Screenshot(saveDir):
         ScreenshotFilePath = saveDir + '/Screenshot%d.png' %i
         if not os.path.exists(ScreenshotFilePath):
             newfile=open(ScreenshotFilePath,'wb')
-            newfile.write(bytearray(data))
+            newfile.write(data)
             newfile.close()
             break
         
@@ -47,14 +46,13 @@ root = tk.Tk()
 root.withdraw()   
 #VISA-Ressource
 GLOBAL_TOUT =  20000     
-#SCOPE_VISA_ADDRESS = "USB0::0x0957::0x17B6::MY56310539::0::INSTR" 
 rm = visa.ResourceManager('C:\\Windows\\System32\\visa32.dll') 
 
 SCOPE_VISA_ADDRESS = str(rm.list_resources())
 SCOPE_VISA_ADDRESS = SCOPE_VISA_ADDRESS[2:-3]
 
 try:
-    MSOX4024A = rm.open_resource(SCOPE_VISA_ADDRESS)
+    MyOszi = rm.open_resource(SCOPE_VISA_ADDRESS)
     print("Connected to oscilloscope at:")
     print(str(SCOPE_VISA_ADDRESS) + " \n")
 except Exception:
@@ -62,10 +60,10 @@ except Exception:
     time.sleep(5)
     sys.exit()
 
-MSOX4024A.timeout = GLOBAL_TOUT
+MyOszi.timeout = GLOBAL_TOUT
 time.sleep(3) 
-MSOX4024A.clear()
-IDN = str(MSOX4024A.query("*IDN?"))
+MyOszi.clear()
+IDN = str(MyOszi.query("*IDN?"))
 print("Oscilloscope ID:")
 print(IDN + " \n")
 
@@ -92,3 +90,4 @@ except Exception:
     print('\n--Something went wrong--\n Aborting Script...')
     time.sleep(5)
     sys.exit()
+ls
