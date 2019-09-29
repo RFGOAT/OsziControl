@@ -23,7 +23,6 @@ def Screenshot(saveDir):
     data = MyOszi.read_raw() # get screen data
     MyOszi.write(Trigger)
 
-    
     # write it to file counter screenshot index
     for i in range(0,50):
         ScreenshotFilePath = saveDir + '/Screenshot%d.png' %i
